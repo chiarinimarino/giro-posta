@@ -72,9 +72,8 @@ button { cursor: pointer; }
 }
 .tb[aria-pressed="false"] { opacity: .6; text-decoration: line-through; }
 /* schermo nero: tutto coperto di nero (sugli schermi OLED quasi non consuma), voce e GPS vanno avanti.
-   Resta visibile, scuro, solo il tasto per riaccendere, nello stesso posto. */
-#nero { position: fixed; inset: 0; z-index: 30; background: #000; }
-#neroBtn.on { position: relative; z-index: 31; background: #000; border-color: #2a2a2a; color: #6b6b6b; }
+   Un tocco in qualsiasi punto lo riaccende. */
+#nero { position: fixed; inset: 0; z-index: 30; background: #000; cursor: pointer; }
 #stato { font-size: 13px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 #man {
   background: var(--sign); color: var(--sign-ink); border: 0; text-align: left; width: 100%;
@@ -947,11 +946,10 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
   function schermoNero(si) {
     st.nero = si;
     $("nero").hidden = !si;
-    $("neroBtn").classList.toggle("on", si);
-    $("neroBtn").textContent = si ? "Accendi" : "Nero";
     if (!si && Z) { civChiave = ""; iconaMostrata = ""; aggiorna(); }
   }
-  $("neroBtn").onclick = () => schermoNero(!st.nero);
+  $("neroBtn").onclick = () => schermoNero(true);
+  $("nero").onclick = () => schermoNero(false);
   $("voceBtn").onclick = () => {
     st.voce = !st.voce; $("voceBtn").setAttribute("aria-pressed", String(st.voce));
     if (!st.voce) try { speechSynthesis.cancel(); } catch (e) {}
