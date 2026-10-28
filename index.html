@@ -71,6 +71,10 @@ button { cursor: pointer; }
   border-radius: 8px; padding: 5px 10px; font-size: 14px; font-weight: 700; min-height: 34px;
 }
 .tb[aria-pressed="false"] { opacity: .6; text-decoration: line-through; }
+/* schermo nero: tutto coperto di nero (sugli schermi OLED quasi non consuma), voce e GPS vanno avanti.
+   Resta visibile, scuro, solo il tasto per riaccendere, nello stesso posto. */
+#nero { position: fixed; inset: 0; z-index: 30; background: #000; }
+#neroBtn.on { position: relative; z-index: 31; background: #000; border-color: #2a2a2a; color: #6b6b6b; }
 #stato { font-size: 13px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 #man {
   background: var(--sign); color: var(--sign-ink); border: 0; text-align: left; width: 100%;
@@ -185,6 +189,7 @@ button { cursor: pointer; }
     <div class="grp"><b id="zonaLab">Zona</b><span id="stato">Prova</span></div>
     <div class="grp">
       <button class="tb" id="voceBtn" aria-pressed="true" title="Voce accesa o spenta">Voce</button>
+      <button class="tb" id="neroBtn" title="Schermo nero: voce e GPS continuano">Nero</button>
       <button class="tb" id="esciBtn">Menu</button>
     </div>
   </div>
@@ -222,6 +227,8 @@ button { cursor: pointer; }
     </div>
   </div>
 </div>
+
+<div id="nero" hidden></div>
 
 <div id="inizio">
   <div class="box">
@@ -303,7 +310,7 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
   const st = { s: 0, modo: "sim", play: false, vel: 3, voce: true, scala: 1.6, annunciata: -1, fuori: 0,
                fuoriGiro: false, pos: null, tPos: 0, dir: null, tFix: 0,
                dirDa: null, lavoro: "posta", scalaLibera: 2.8, viaLibera: null, contaVia: 0, vicini: [],
-               cerca: false, passaggi: [], iPass: 0 };
+               cerca: false, passaggi: [], iPass: 0, nero: false };
   const VSIM = 5;   // m/s, circa 18 km/h
 
   // ------------------------------------------------------------------ voce
@@ -517,7 +524,7 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
     disegna();
   }
   function disegna() {
-    if (!Z || !W) return;
+    if (!Z || !W || st.nero) return;       // a schermo nero la mappa non si ridisegna
     // sul giro la mappa segue la posizione; fuori dal giro mostra insieme dove si è e il punto dove tornare;
     // con le raccomandate segue dove si è, senza il percorso
     const libero = st.lavoro === "racc";
@@ -930,12 +937,21 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
     if (st.modo === "gps") avviaGps();
   };
   $("esciBtn").onclick = () => {
+    schermoNero(false);
     st.play = false; fermaGps(); try { speechSynthesis.cancel(); } catch (e) {}
     if (lock) { try { lock.release(); } catch (e) {} lock = null; }
     if (Z) { ls.set("giro_" + Z.zona, { s: st.s, quando: Date.now() }); zonaScelta = Z.zona; }
     riempiInizio();
     $("inizio").hidden = false;
   };
+  function schermoNero(si) {
+    st.nero = si;
+    $("nero").hidden = !si;
+    $("neroBtn").classList.toggle("on", si);
+    $("neroBtn").textContent = si ? "Accendi" : "Nero";
+    if (!si && Z) { civChiave = ""; iconaMostrata = ""; aggiorna(); }
+  }
+  $("neroBtn").onclick = () => schermoNero(!st.nero);
   $("voceBtn").onclick = () => {
     st.voce = !st.voce; $("voceBtn").setAttribute("aria-pressed", String(st.voce));
     if (!st.voce) try { speechSynthesis.cancel(); } catch (e) {}
