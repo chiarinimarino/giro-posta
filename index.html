@@ -145,9 +145,35 @@ button { cursor: pointer; }
 .cb.princ { background: var(--sign); color: var(--sign-ink); border-color: var(--sign); flex: 1.3; }
 #vel { flex: 0 0 auto; min-height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); padding: 0 8px; }
 #cursore { width: 100%; accent-color: var(--route); }
-#lavoro { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--sign); border-radius: 12px; overflow: hidden; }
+#lavoro { display: grid; grid-template-columns: 1fr 1fr 56px; border: 2px solid var(--sign); border-radius: 12px; overflow: hidden; }
 #lavoro button { min-height: 48px; border: 0; background: var(--panel); font-weight: 700; font-size: 17px; }
 #lavoro button[aria-pressed="true"] { background: var(--sign); color: var(--sign-ink); }
+#lavoro #cercaBtn { border-left: 2px solid var(--sign); display: grid; place-items: center; }
+.lente { width: 24px; height: 24px; display: block; }
+
+/* ---- cerca via e civico: pannello a tutto schermo, campo in alto (la tastiera copre il fondo) ---- */
+#cerca {
+  position: fixed; inset: 0; z-index: 25; background: var(--bg); display: flex; flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+#cercaTesta {
+  display: flex; gap: 8px; align-items: center; background: var(--sign); padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#cercaIn {
+  flex: 1; min-width: 0; min-height: 50px; border-radius: 10px; border: 0; padding: 0 12px;
+  font-size: 19px; background: var(--panel); color: var(--ink);
+}
+#cercaChiudi { min-height: 50px; border: 0; background: none; color: var(--sign-ink); font-weight: 700; font-size: 16px; padding: 0 4px; }
+#cercaRis { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.ris {
+  display: grid; gap: 2px; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--line);
+  background: var(--panel); padding: 12px max(16px, env(safe-area-inset-left, 0px));
+}
+.ris b { font-family: var(--font-sign); font-weight: 700; font-size: 24px; line-height: 1.1; }
+.ris small { color: var(--muted); font-size: 13px; }
+.ris.inizio b { color: var(--sign); }
+#cercaNota { color: var(--muted); font-size: 14px; line-height: 1.45; padding: 14px max(16px, env(safe-area-inset-left, 0px)); }
 
 /* ---- schermata d'inizio ---- */
 #inizio {
@@ -171,7 +197,12 @@ button { cursor: pointer; }
 .op[aria-pressed="true"] { border-color: var(--sign); box-shadow: inset 0 0 0 1px var(--sign); }
 #riprendiBox { display: flex; gap: 10px; align-items: center; font-size: 15px; }
 #riprendiBox input { width: 22px; height: 22px; accent-color: var(--sign); flex: 0 0 auto; }
-#via0 { width: 100%; min-height: 46px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); padding: 0 10px; }
+#partoBtn {
+  width: 100%; min-height: 50px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel);
+  padding: 0 12px; display: flex; gap: 10px; align-items: center; text-align: left; font-size: 16px;
+}
+#partoBtn .lente { color: var(--muted); flex: 0 0 auto; }
+#partoTxt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #parti {
   min-height: 58px; border-radius: 12px; border: 0; background: var(--sign); color: var(--sign-ink);
   font-family: var(--font-sign); font-weight: 700; font-size: 26px; letter-spacing: .02em;
@@ -212,6 +243,7 @@ button { cursor: pointer; }
     <div id="lavoro" role="group" aria-label="Cosa stai facendo">
       <button id="lavPosta" aria-pressed="true">Posta</button>
       <button id="lavRacc" aria-pressed="false">Raccomandate</button>
+      <button id="cercaBtn" aria-label="Cerca via e civico da cui partire con la posta"><svg class="lente" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg></button>
     </div>
     <div id="prog"><span id="progN">N° 0 di 0</span><span id="progKm">0,0 di 0,0 km</span></div>
     <div id="barra"><i></i></div>
@@ -228,6 +260,15 @@ button { cursor: pointer; }
 </div>
 
 <div id="nero" hidden></div>
+
+<div id="cerca" hidden>
+  <div id="cercaTesta">
+    <input id="cercaIn" type="search" placeholder="Via e civico, es. pinzi 14" autocomplete="off" autocorrect="off"
+           autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Via e civico">
+    <button id="cercaChiudi">Annulla</button>
+  </div>
+  <div id="cercaRis"></div>
+</div>
 
 <div id="inizio">
   <div class="box">
@@ -253,7 +294,7 @@ button { cursor: pointer; }
     </div>
     <div class="scelta" id="partoBox">
       <div class="lab">Da dove parto</div>
-      <select id="via0" aria-label="Via da cui partire"></select>
+      <button id="partoBtn"><svg class="lente" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg><span id="partoTxt">Dall'inizio del giro</span></button>
       <label id="riprendiBox" hidden><input type="checkbox" id="riprendi" checked> <span id="riprendiTxt"></span></label>
     </div>
     <button id="parti">Inizia il giro</button>
@@ -309,7 +350,7 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
   const st = { s: 0, modo: "sim", play: false, vel: 3, voce: true, scala: 1.6, annunciata: -1, fuori: 0,
                fuoriGiro: false, pos: null, tPos: 0, dir: null, tFix: 0,
                dirDa: null, lavoro: "posta", scalaLibera: 2.8, viaLibera: null, contaVia: 0, vicini: [],
-               cerca: false, passaggi: [], iPass: 0, nero: false };
+               cerca: false, passaggi: [], iPass: 0, nero: false, meta: null };   // meta: civico scelto con la ricerca
   const VSIM = 5;   // m/s, circa 18 km/h
 
   // ------------------------------------------------------------------ voce
@@ -339,7 +380,49 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
     if (m.tipo === "dritto") return "Prosegui dritto in " + m.via;
     return "Fra poco " + DIR[m.tipo] + ": " + m.via;
   }
-  function testoFuori() { return "Sei fuori dal giro. Torna in " + viaAttuale() + "."; }
+  function testoFuori() {
+    if (st.meta !== null) return "Posta da " + nomeCivico(Z, st.meta) + ".";
+    return "Sei fuori dal giro. Torna in " + viaAttuale() + ".";
+  }
+
+  // ------------------------------------------------------------------ cerca via e civico
+  // Si scrive "pinzi 14", "via mario pinzi 14/a", "14 a pinzi"…: le parole devono stare nel nome della via
+  // (quello del cartello o quello corto del foglio), il numero deve essere il civico (14 trova 14, 14/A, 14 B,
+  // non 140). Ogni civico è una volta sola nel giro, quindi la partenza è sicura.
+  const PAROLE_VIA = new Set(["via", "viale", "v", "vle", "piazza", "pza", "piazzetta", "ptta", "largo", "vicolo"]);
+  function norm(t) { return t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  function indiceCerca(d) {
+    if (d._cerca) return d._cerca;
+    const nome = [];
+    for (const v of d.vie) for (let n = v.da; n <= v.a; n++) nome[n - 1] = v.nome;
+    return (d._cerca = d.civici.map((c, i) => {
+      const via = nome[i] || c[1];
+      return { i, via, testo: norm(via + " " + c[1]).replace(/[^a-z0-9]+/g, " "), num: norm(c[2]).replace(/[^a-z0-9]/g, "") };
+    }));
+  }
+  function nomeCivico(d, k) { return indiceCerca(d)[k].via + " " + d.civici[k][2]; }
+  function cercaCivici(d, q) {
+    const t = norm(q).replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter(Boolean);
+    let num = ""; const parole = [];
+    for (let j = 0; j < t.length; j++) {
+      if (/^\d/.test(t[j])) {
+        num = t[j];
+        if (j + 1 < t.length && /^[a-z]$/.test(t[j + 1])) num += t[++j];      // "14 a" come "14a"
+      } else if (!PAROLE_VIA.has(t[j])) parole.push(t[j]);
+    }
+    if (!num && !parole.length) return [];
+    const ris = indiceCerca(d).filter(r => parole.every(p => r.testo.includes(p)) &&
+      (!num || r.num === num || (r.num.startsWith(num) && /[a-z]/.test(r.num.charAt(num.length)))));
+    ris.sort((a, b) => (b.num === num) - (a.num === num) || a.via.localeCompare(b.via) ||
+      parseInt(a.num) - parseInt(b.num) || a.num.localeCompare(b.num));
+    return ris.slice(0, 40);
+  }
+  // punto del giro da cui partire per avere il civico k come primo da servire (anche quello prima, se è
+  // diverso, resta "fatto")
+  function sDiPartenza(d, k) {
+    const c = d.civS[k], lo = k > 0 ? d.civS[k - 1] + 3.01 : 0;
+    return Math.min(c + 3, Math.max(c - 15, lo));
+  }
 
   // ------------------------------------------------------------------ raccomandate: la via dove si è
   function distSeg(x, y, ax, ay, bx, by) {
@@ -428,11 +511,16 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
       $("manVia").textContent = "Cerco dove sei sul giro…";
       return;
     }
-    if (st.fuoriGiro) {        // fuori: dove tornare e quanto è lontano in linea d'aria
-      const [x, y] = punto(st.s), d = st.pos ? Math.hypot(st.pos[0] - x, st.pos[1] - y) : 0;
+    if (st.fuoriGiro) {        // fuori (o verso il civico scelto): dove andare e quanto è lontano in linea d'aria
+      const [x, y] = punto(st.s), d = st.pos ? " · " + metri(Math.hypot(st.pos[0] - x, st.pos[1] - y)) : "";
       icona("fuori");
-      $("manDist").textContent = "fuori dal giro · " + metri(d);
-      $("manVia").textContent = "Torna in " + viaAttuale();
+      if (st.meta !== null) {
+        $("manDist").textContent = "posta da qui" + d;
+        $("manVia").textContent = "Vai in " + nomeCivico(Z, st.meta);
+      } else {
+        $("manDist").textContent = "fuori dal giro" + d;
+        $("manVia").textContent = "Torna in " + viaAttuale();
+      }
       return;
     }
     const x = manovre()[prossimaManovra()], dist = Math.max(0, x.s - st.s);
@@ -650,7 +738,7 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
       return;
     }
     if (st.cerca) { mostraManovra(); disegna(); return; }
-    controllaAnnunci();
+    if (!st.fuoriGiro) controllaAnnunci();     // fuori non si annunciano svolte: al rientro le dice rientra()
     mostraManovra();
     mostraCivici();
     $("cursore").value = Math.round(1000 * st.s / Z.L);
@@ -661,7 +749,7 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
   // silenzio: dopo un salto non si annuncia la svolta vicina (all'inizio la dice già il messaggio di partenza)
   function vaiA(s, silenzio) {
     st.s = Math.min(Math.max(s, 0), Z.L);
-    st.fuoriGiro = false; st.fuori = 0; avviso(null);     // spostato a mano: decide di nuovo il GPS
+    st.fuoriGiro = false; st.fuori = 0; st.meta = null; avviso(null);   // spostato a mano: decide di nuovo il GPS
     const i = prossimaManovra();
     st.annunciata = silenzio && manovre()[i].s - st.s <= ANTICIPO ? i : i - 1;
     aggiorna();
@@ -712,9 +800,17 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
     parla(testoFuori());
   }
   function rientra(s) {
-    st.fuoriGiro = false; st.fuori = 0; st.s = s; avviso(null);
+    // non oltre il prossimo civico: rientrando proprio lì non deve risultare già fatto
+    const k = prossimi();
+    st.fuoriGiro = false; st.fuori = 0; avviso(null);
+    st.s = k < Z.civS.length ? Math.min(s, Z.civS[k] + 2) : s;
     const i = prossimaManovra(), x = manovre()[i];
     let t = "Sei di nuovo sul giro.";
+    if (st.meta !== null) {
+      const c = Z.civici[Math.min(prossimi(), Z.civici.length - 1)];
+      t = "Sei arrivato. Primo civico: " + c[1] + " " + c[2] + ".";
+      st.meta = null;
+    }
     if (x.s - st.s <= ANTICIPO) { t += " " + testoManovra(x); st.annunciata = i; } else st.annunciata = i - 1;
     parla(t);
   }
@@ -753,7 +849,7 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
   }
   function riparti() {
     const s = st.passaggi[st.iPass];
-    st.s = Math.max(0, s - 15); st.cerca = false; st.fuoriGiro = false; st.fuori = 0;
+    st.s = Math.max(0, s - 15); st.cerca = false; st.fuoriGiro = false; st.fuori = 0; st.meta = null;
     const k = Math.min(prossimi(), Z.civici.length - 1), c = Z.civici[k], i = prossimaManovra(), x = manovre()[i];
     let t = "Posta. Sei in " + viaAttuale() + ". Primo civico: " + c[1] + " " + c[2] + ".";
     if (x.s - st.s <= ANTICIPO) { t += " " + testoManovra(x); st.annunciata = i; } else st.annunciata = i - 1;
@@ -783,6 +879,14 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
   }
   $("altroBtn").onclick = () => { st.iPass = (st.iPass + 1) % st.passaggi.length; riparti(); };
 
+  // fuori dal giro (o in viaggio verso il civico scelto): si rientra entro 25 m dal giro, tra poco prima del
+  // punto dove si è usciti e il prossimo civico
+  function provaRientro(x, y) {
+    const k = prossimi(), fino = Math.max(st.s + 40, k < Z.civS.length ? Z.civS[k] + 10 : Z.L);
+    const b = aggancia(x, y, st.s - 40, fino);
+    if (b && b.d <= 25) { rientra(b.s); return true; }
+    return false;
+  }
   function fixGps(p) {
     const [x, y] = daGps(p.coords.latitude, p.coords.longitude), acc = p.coords.accuracy || 0;
     const ora = p.timestamp || Date.now(), dt = st.tFix ? Math.max(0, ora - st.tFix) / 1000 : 60;
@@ -798,11 +902,8 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
     $("stato").textContent = "GPS ±" + Math.round(acc) + " m";
     if (acc > 50 || st.lavoro === "racc") { aggiorna(); return; }   // lettura imprecisa: non decide niente
     if (st.cerca) { ripartiDa(st.pos); return; }
-    if (st.fuoriGiro) {
-      const k = prossimi(), fino = Math.max(st.s + 40, k < Z.civS.length ? Z.civS[k] + 10 : Z.L);
-      const b = aggancia(x, y, st.s - 40, fino);
-      if (b && b.d <= 25) rientra(b.s);
-    } else {
+    if (st.fuoriGiro) provaRientro(x, y);
+    else {
       // avanti si cerca solo quanto si può aver fatto dall'ultima lettura: una via sbagliata che fa parte
       // del giro più avanti non deve far saltare il giro fin lì
       const b = aggancia(x, y, st.s - 80, st.s + Math.min(600, 60 + VMAX * dt));
@@ -838,6 +939,7 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
   // ------------------------------------------------------------------ schermata d'inizio
   let zonaScelta = ls.get("giro_zona") || "25a", modoScelto = ls.get("giro_modo") || "sim";
   let lavoroScelto = ls.get("giro_lavoro") === "racc" ? "racc" : "posta";
+  let partenza = null;        // civico scelto con la ricerca (indice), null = dall'inizio del giro
   if (!ZONE[zonaScelta]) zonaScelta = Object.keys(ZONE)[0];
   function riempiInizio() {
     $("iniPosta").setAttribute("aria-pressed", String(lavoroScelto === "posta"));
@@ -848,17 +950,14 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
       const d = ZONE[z], b = document.createElement("button");
       b.className = "op"; b.setAttribute("aria-pressed", String(z === zonaScelta));
       b.innerHTML = "<b>" + z + "</b><small>" + d.civici.length + " civici · " + String(d.km.totali).replace(".", ",") + " km</small>";
-      b.onclick = () => { zonaScelta = z; riempiInizio(); };
+      b.onclick = () => { if (z !== zonaScelta) partenza = null; zonaScelta = z; riempiInizio(); };
       box.append(b);
     }
     $("modoGps").setAttribute("aria-pressed", String(modoScelto === "gps"));
     $("modoSim").setAttribute("aria-pressed", String(modoScelto === "sim"));
-    const d = prepara(ZONE[zonaScelta]), sel = $("via0"); sel.textContent = "";
-    d.vie.forEach((v, i) => {
-      const o = document.createElement("option");
-      o.value = i; o.textContent = (i + 1) + ". " + v.nome + " (N° " + v.da + (v.a !== v.da ? "–" + v.a : "") + ")";
-      sel.append(o);
-    });
+    const d = prepara(ZONE[zonaScelta]);
+    $("partoTxt").textContent = partenza === null ? "Dall'inizio del giro"
+      : nomeCivico(d, partenza) + " · N° " + d.civici[partenza][0];
     const sv = ls.get("giro_" + zonaScelta);
     if (sv && sv.s > 20 && sv.s < d.L - 20 && Date.now() - sv.quando < 12 * 3600 * 1000) {
       const k = d.civS.findIndex(s => s >= sv.s - 3);
@@ -872,7 +971,70 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
   $("modoSim").onclick = () => { modoScelto = "sim"; riempiInizio(); };
   $("iniPosta").onclick = () => { lavoroScelto = "posta"; riempiInizio(); };
   $("iniRacc").onclick = () => { lavoroScelto = "racc"; riempiInizio(); };
-  $("via0").onchange = () => { $("riprendi").checked = false; };
+
+  // ------------------------------------------------------------------ pannello di ricerca
+  let cercaPer = null;        // "inizio" (schermata d'inizio) o "giro" (lentina in basso)
+  function apriCerca(per) {
+    cercaPer = per; $("cerca").hidden = false; $("cercaIn").value = "";
+    mostraRis(); $("cercaIn").focus();
+  }
+  function chiudiCerca() { $("cercaIn").blur(); $("cerca").hidden = true; }
+  function rigaRis(titolo, sotto, fai, cls) {
+    const b = document.createElement("button");
+    b.className = "ris" + (cls ? " " + cls : "");
+    const t = document.createElement("b"); t.textContent = titolo;
+    const s = document.createElement("small"); s.textContent = sotto;
+    b.append(t, s); b.onclick = fai;
+    $("cercaRis").append(b);
+  }
+  function mostraRis() {
+    const d = cercaPer === "inizio" ? prepara(ZONE[zonaScelta]) : Z, q = $("cercaIn").value;
+    $("cercaRis").textContent = "";
+    if (cercaPer === "inizio" && !q.trim()) rigaRis("Dall'inizio del giro", "N° 1, " + nomeCivico(d, 0), () => scegli(null), "inizio");
+    const ris = cercaCivici(d, q);
+    for (const r of ris) {
+      const c = d.civici[r.i];
+      rigaRis(r.via + " " + c[2], "N° " + c[0] + (c[6] ? " · a piedi" : "") + (c[7] === 2 ? " · 2 caselle" : ""), () => scegli(r.i));
+    }
+    if (!ris.length) {
+      const p = document.createElement("p"); p.id = "cercaNota";
+      p.textContent = q.trim() ? "Nessun civico trovato. Prova solo una parte del nome della via, per esempio «pinzi 14»."
+                               : "Scrivi la via e il civico, per esempio «pinzi 14». Basta una parte del nome.";
+      $("cercaRis").append(p);
+    }
+  }
+  function scegli(k) {
+    chiudiCerca();
+    if (cercaPer === "inizio") { partenza = k; $("riprendi").checked = false; riempiInizio(); }
+    else if (k !== null) vaiAlCivico(k);
+  }
+  $("cercaIn").oninput = mostraRis;
+  $("cercaIn").onkeydown = e => {          // Invio: se c'è un solo risultato lo sceglie
+    if (e.key !== "Enter") return;
+    const r = cercaCivici(cercaPer === "inizio" ? prepara(ZONE[zonaScelta]) : Z, $("cercaIn").value);
+    if (r.length === 1) scegli(r[0].i); else $("cercaIn").blur();
+  };
+  $("cercaChiudi").onclick = chiudiCerca;
+  $("partoBtn").onclick = () => apriCerca("inizio");
+  $("cercaBtn").onclick = () => { if (Z) apriCerca("giro"); };
+
+  // posta dal civico k scelto con la ricerca. In prova ci si va subito; col GPS il giro aspetta lì
+  // (cerchio rosso, "Vai in …") e la guida parte quando ci si arriva.
+  function vaiAlCivico(k) {
+    st.lavoro = "posta"; st.cerca = false; applicaLavoro();
+    vaiA(sDiPartenza(Z, k), true);
+    if (st.modo === "sim") {
+      const x = manovre()[prossimaManovra()];
+      parla("Posta da " + nomeCivico(Z, k) + "." + (x.s - st.s <= ANTICIPO ? " " + testoManovra(x) : ""), true);
+      return;
+    }
+    st.meta = k; st.fuoriGiro = true;
+    const p = posizioneRecente();
+    if (p && provaRientro(p[0], p[1])) { aggiorna(); return; }      // già lì
+    parla(testoFuori(), true);
+    avviso("Vai al cerchio rosso: " + nomeCivico(Z, k) + ". La guida parte quando ci arrivi.", true);
+    aggiorna();
+  }
 
   // ------------------------------------------------------------------ Posta / Raccomandate
   function applicaLavoro() {
@@ -899,7 +1061,7 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
   }
   function cambiaLavoro(l) {
     if (!Z || st.lavoro === l) return;
-    st.lavoro = l; st.fuoriGiro = false; st.fuori = 0; st.cerca = false;
+    st.lavoro = l; st.fuoriGiro = false; st.fuori = 0; st.cerca = false; st.meta = null;
     avviso(null); applicaLavoro();
     if (l === "racc") { parla("Raccomandate." + viaSubito(), true); aggiorna(); return; }
     const p = posizioneRecente();
@@ -925,14 +1087,20 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
     applicaLavoro(); dimensiona();
     // con le raccomandate il punto di partenza serve solo come "dove era arrivata la posta" per dopo
     const sv = ls.get("giro_" + Z.zona);
-    const s0 = !$("riprendiBox").hidden && $("riprendi").checked && sv ? sv.s : Math.max(0, Z.vie[+$("via0").value || 0].s - 30);
+    const s0 = !$("riprendiBox").hidden && $("riprendi").checked && sv ? sv.s : sDiPartenza(Z, partenza === null ? 0 : partenza);
     vaiA(s0, true);
     const x = manovre()[prossimaManovra()], c = Z.civici[Math.min(prossimi(), Z.civici.length - 1)];
     if (st.lavoro === "racc") { parla("Si parte. Raccomandate." + viaSubito(), true); aggiorna(); }
+    else if (st.modo === "gps") {
+      // col GPS si parte "verso il primo civico": la guida comincia quando ci si arriva
+      st.meta = Math.min(prossimi(), Z.civici.length - 1); st.fuoriGiro = true;
+      parla("Si parte. " + testoFuori(), true);
+    }
     else parla("Si parte. Sei in " + viaAttuale() + ". " + (x.s - st.s <= ANTICIPO ? testoManovra(x) : "Primo civico: " + c[1] + " " + c[2]), true);
     tieniAcceso();
     fermaGps();
-    avviso(null);
+    avviso(st.meta !== null ? "Vai al cerchio rosso: " + nomeCivico(Z, st.meta) + ". La guida parte quando ci arrivi." : null, true);
+    aggiorna();
     if (st.modo === "gps") avviaGps();
   };
   $("esciBtn").onclick = () => {
@@ -989,7 +1157,8 @@ const ZONE = {"25a":{"zona":"25a","km":{"totali":12.22,"servizio":6.7,"vuoto":5.
     fixGps({ coords: { latitude: g.lat0 + dt, longitude: g.lon0 + dl, accuracy: acc || 8 }, timestamp: t });
   };
   window.giroStato = () => ({ s: st.s, fuoriGiro: st.fuoriGiro, punto: punto(st.s), L: Z.L, lavoro: st.lavoro,
-                              cerca: st.cerca, via: st.viaLibera, passaggi: st.passaggi.slice(), iPass: st.iPass });
+                              cerca: st.cerca, via: st.viaLibera, passaggi: st.passaggi.slice(), iPass: st.iPass,
+                              meta: st.meta, primo: prossimi() });
 
   // ------------------------------------------------------------------ app dalla schermata Home (solo sul sito)
   // sw.js tiene la pagina nel telefono, così si apre anche senza internet. Quando arriva una versione nuova
