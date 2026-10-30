@@ -1,4 +1,4 @@
-const VERSIONE = "giro-0e525b1393", CARATTERI = "giro-caratteri";
+const VERSIONE = "giro-10280c833a", CARATTERI = "giro-caratteri";
 const FILE = ["./", "manifest.webmanifest", "icona-180.png", "icona-192.png", "icona-512.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSIONE)
